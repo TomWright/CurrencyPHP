@@ -59,4 +59,17 @@ abstract class Currency
         return ($amount * $conversionRate);
     }
 
+
+    /**
+     * @param Currency $currency
+     * @return float
+     */
+    public function getReverseConversionRate(Currency $currency)
+    {
+        $rate = $this->getConversionRate($currency);
+        $toConversion = 1 * $rate;
+        $reverseRate = 1 / $toConversion;
+        return $reverseRate;
+    }
+
 }
