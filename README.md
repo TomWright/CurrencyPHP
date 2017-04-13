@@ -17,36 +17,88 @@ composer install tomwright/currency-php
 
 CurrencyPHP is just a basic wrapper. It cannot do conversions out of the box... Saying that... you only need to provide it with the conversion rates.
 
-The following example provides the exchange rates between `GBP` and `USD`.
-
 ```php
-class Currency extends \TomWright\CurrencyPHP\Currency
-{
 
-    /**
-     * @param \TomWright\CurrencyPHP\Currency $currency
-     * @return float
-     */
-    public function getConversionRate(\TomWright\CurrencyPHP\Currency $currency)
-    {
-        $result = 0;
-        if ($this->getCurrencyCode() == $currency->getCurrencyCode()) {
-            $result = 1;
-        } elseif ($this->getCurrencyCode() == 'GBP' && $currency->getCurrencyCode() == 'USD') {
-            $result = 1.26;
-        } elseif ($this->getCurrencyCode() == 'USD' && $currency->getCurrencyCode() == 'GBP') {
-            $result = 0.80;
-        }
-        return $result;
-    }
-}
+$rateFetcher = new MyConversionRateFetcher();
 
-$gbp = new Currency('GBP');
-$usd = new Currency('USD');
+$gbp = new Currency('GBP', $rateFetcher);
+$usd = new Currency('USD', $rateFetcher);
 
 $priceInGBP = 100;
 $priceInUSD = $gbp->convertTo($usd, $priceInGBP);
 echo $priceInUSD; // 126
 ```
 
-I would recommend querying a database at this point to find the most recent conversion rate, but the above is good enough as an example.
+## Rate Fetchers
+
+Rate Fetchers are what `CurrencyPHP` uses to get conversion rates. Any Rate Fetcher you create should implement `ConversionRateFetcherInterface`.
+
+The following Rate Fetcher gives you some fixed exchange rates:
+- GBP to USD
+- USD to GBP
+- GBP to CAD
+- CAD to USD
+
+```php
+class FixedRateFetcher implements ConversionRateFetcherInterface
+{
+
+    /**
+     * @param Currency $from
+     * @param Currency $to
+     * @return float
+     */
+    public function getConversionRate(Currency $from, Currency $to)
+    {
+        $rates = [
+            [
+                'from' => 'GBP',
+                'to' => 'USD',
+                'rate' => 1.2547,
+            ],
+            [
+                'from' => 'USD',
+                'to' => 'GBP',
+                'rate' => 0.7974,
+            ],
+            [
+                'from' => 'GBP',
+                'to' => 'CAD',
+                'rate' => 1.6612,
+            ],
+            [
+                'from' => 'CAD',
+                'to' => 'USD',
+                'rate' => 0.7539,
+            ],
+        ];
+
+        $result = null;
+
+        foreach ($rates as $rate) {
+            if ($rate['from'] === $from->getCurrencyCode() && $rate['to'] === $to->getCurrencyCode()) {
+                $result = $rate['rate'];
+            }
+        }
+        return $result;
+    }
+}
+```
+
+## Handling unknown conversion rates
+
+### One way conversion rates
+
+The above Rate Fetcher has rates for both GBP to USD, and USD to GBP and this works great... but you'll also notice that it has CAD to USD, but no USD to CAD conversion rates. There is some logic implemented so that you only need to store 1 way conversion rates and it will automatically invert the rate if required.
+
+Thanks to this logic, you can run a USD to CAD conversion using the above Rate Fetcher with no problems. The full list of conversion that the above can handle is as follows:
+- GBP to USD
+- USD to GBP
+- GBP to CAD
+- CAD to GBP
+- CAD to USD
+- USD to CAD
+
+### Missing conversion rates
+
+If no conversion rate exists at all between the 2 currencies, an `UnhandledConversionRate` Exception will be thrown. 
