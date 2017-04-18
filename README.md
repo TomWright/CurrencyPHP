@@ -33,6 +33,14 @@ echo $priceInUSD; // 126
 
 Rate Fetchers are what `CurrencyPHP` uses to get conversion rates. Any Rate Fetcher you create should implement `ConversionRateFetcherInterface`.
 
+### Existing Rate Fetchers
+
+- [Yahoo Currency API](https://github.com/TomWright/CurrencyPHPYahooRateFetcher)
+
+If you have created your own Rate Fetcher and want it included here, please submit a pull request.
+
+### Creating Your Own
+
 The following Rate Fetcher gives you some fixed exchange rates:
 - GBP to USD
 - USD to GBP
@@ -85,9 +93,9 @@ class FixedRateFetcher implements ConversionRateFetcherInterface
 }
 ```
 
-## Handling unknown conversion rates
+### Handling unknown conversion rates
 
-### One way conversion rates
+#### One way conversion rates
 
 The above Rate Fetcher has rates for both GBP to USD, and USD to GBP and this works great... but you'll also notice that it has CAD to USD, but no USD to CAD conversion rates. There is some logic implemented so that you only need to store 1 way conversion rates and it will automatically invert the rate if required.
 
@@ -99,6 +107,6 @@ Thanks to this logic, you can run a USD to CAD conversion using the above Rate F
 - CAD to USD
 - USD to CAD
 
-### Missing conversion rates
+#### Missing conversion rates
 
 If no conversion rate exists at all between the 2 currencies, an `UnhandledConversionRate` Exception will be thrown. 
