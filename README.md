@@ -35,6 +35,7 @@ Rate Fetchers are what `CurrencyPHP` uses to get conversion rates. Any Rate Fetc
 
 ### Existing Rate Fetchers
 
+- [Fixer IO](https://github.com/TomWright/CurrencyPHPFixerIORateFetcher)
 - [Yahoo Currency API](https://github.com/TomWright/CurrencyPHPYahooRateFetcher)
 
 If you have created your own Rate Fetcher and want it included here, please submit a pull request.
