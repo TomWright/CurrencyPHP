@@ -20,9 +20,10 @@ CurrencyPHP is just a basic wrapper. It cannot do conversions out of the box... 
 ```php
 
 $rateFetcher = new MyConversionRateFetcher();
+$factory = new CurrencyFactory($rateFetcher);
 
-$gbp = new Currency('GBP', $rateFetcher);
-$usd = new Currency('USD', $rateFetcher);
+$gbp = $factory->create('GBP');
+$usd = $factory->create('USD');
 
 $priceInGBP = 100;
 $priceInUSD = $gbp->convertTo($usd, $priceInGBP);
